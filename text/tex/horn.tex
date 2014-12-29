@@ -1,0 +1,75 @@
+\chapter{Hornův řešič} \label{chap:horn}
+Hornův řešič jsem implementoval podle článku \cite{Horn2005}.
+\section{Hornův algoritmus}
+\subsection{Pomocné definice}
+\begin{definition}
+\index{podhra}
+Nechť $G = (((V, E), P, p), C)$ je Rabinova hra a $\bar{V} \subseteq V$. \definiendum{Podhra} hry $G$ indukovaná množinou $\bar{V}$ je hra $G_{\bar{V}} = (((\bar{V}, \bar{E}), P, \bar{p}), \bar{C})$, na které je přirozeným způsobem definovaná zúžená relace přechodu $\bar{E}$, zúžené rozdělení vrcholů mezi hráče $\bar{p}$ a zúžená Rabinova podmínka $\bar{C}$.
+\end{definition}
+Dále budu podhru indukovanou množinou $\bar{V}$ stručně označovat \uv{podhra $\bar{V}$}.
+\begin{definition}
+\label{def:atraktor}
+\index{atraktor}
+\index{Attr@$Attr$|see{atraktor}}
+Nechť $\bar{V} \subseteq V$, $W \subseteq \bar{V}$ a $hrac \in P$. $hrac$ův \definiendum{atraktor} množiny $W$ v~podhře $\bar{V}$ (značíme $Attr^{\bar{V}}_{hrac}(W)$) je množina všech vrcholů, ze kterých dokáže $hrac$ v~podhře $\bar{V}$ dostat žeton do vrcholu ve $W$ v~konečně mnoha tazích, aniž by mu v~tom mohl jeho oponent zabránit.
+\end{definition}
+\subsection{Popis algoritmu}
+Algoritmus je realizován funkcí $SolveSubgame$, která počítá výherní region podhry. Jejími vstupními argumenty jsou podhra $\bar{V} \subseteq V$ a množina základních Rabinových podmínek $\bar{C} \subseteq C$. Vrací Adamův výherní region podhry $\bar{V}$ s~Rabinovou podmínkou $\bar{C}$.
+
+$SolveSubgame(\bar{V}, \bar{C})$ si nejdříve vybere základní Rabinovu podmínku $(g, r) \in \bar{C}$. Poté odebráním vrcholů $Attr^{\bar{V}}_{Eva}(r)$ z~$\bar{V}$ získá podhru $G_i$.\footnote{V~\cite{Horn2005} index $i$ značí vybranou základní Rabinovu podmínku $(g, r)$.} Z~$G_i$ dále odebere $Attr^{G_i}_{Adam}(g)$, čímž získá podhru $H_i$. Podhru $H_i$ vyřeší zavoláním $SolveSubgame$ s~Rabinovou podmínkou $\bar{C}$ ochuzenou o $(g, r)$ (tedy voláním $SolveSubgame(H_i, \bar{C} - (g, r))$).
+
+Komplement výsledku tohoto volání, tj.~Evin výherní region v~podhře $H_i$ s podmínkou $\bar{C} - (g, r)$, a jeho Evin atraktor v~podhře $G_i$ je odebrán z~$G_i$. Algoritmus poté opakuje výpočet pro tuto novou $G_i$. Takto činí opakovaně, dokud se $G_i$ neustálí.
+
+Ustálená $G_i$ a její Adamův $\bar{V}$-atraktor jsou výherní pro Adama ve $\bar{V}$ podle podmínky $\bar{C}$ (a jsou tedy přidány k~výsledku). Při tomto výpočtu atraktoru $G_i$ se ukládá do globální tabulky Adamova vítězná strategie -- odpovídá právě způsobu dosažení $G_i$ z~vrcholu v~atraktoru. Algoritmus odebere $Attr^{\bar{V}}_{Adam}(G_i)$ z~$\bar{V}$ a nechá novým voláním $SolveSubgame$ vyřešit takto vzniklou podhru -- tentokrát však s~plnou podmínkou $C$ (tedy zavolá $SolveSubgame(\bar{V} - G_i, C)$). Výsledek tohoto volání přidá ke svému výsledku.
+
+Tím končí zpracování podmínky $(g, r)$ ve volání $SolveSubgame(\bar{V}, \bar{C})$. Funkce si zvolí další podmínku z~$\bar{C}$ a výpočet pro ni opakuje.
+
+Výsledný výherní region nasbíraný ve výpočtech pro jednotlivé základní podmínky je vrácen jako návratová hodnota $SolveSubgame(\bar{V}, \bar{C})$.
+
+Zavoláním funkce $SolveSubgame(V, C)$ získáme řešení plné hry.
+
+Pro přesný popis Hornova algoritmu pro řešení Rabinových her a důkaz jeho korektnosti nahlédněte do \cite{Horn2005}.
+\subsection{Časová složitost} \label{subsec:horn:algoritmus:casovaslozitost}
+Tento algoritmus řeší Rabinovy hry v~čase $O(n^{2k}k!)$ \cite[s.~11]{Horn2005}.
+\section{Implementace}
+Implementace je realizovaná třídou \code{HornRabinGameSolver} definovanou v~souboru \path{main/HornRabinGameSolver.cpp}.
+\subsection{Zobecnění na všechny Rabinovy hry} \label{subsec:horn:implementace:zobecneni}
+Hornův algoritmus funguje zaručeně správně pouze na hrách, ve kterých má každý vrchol alespoň jednoho následníka. Aby má implementace dokázala řešit všechny Rabinovy hry, odebírá před výpočtem ze hry množinu všech vrcholů, které nemají žádného následníka, a její Evin atraktor.
+\begin{theorem}
+\label{theorem:vrcholbeznasledniku}
+Vrchol, který nemá žádného následníka, je proherní pro Adama.
+\end{theorem}
+\begin{proof}
+Každý běh, který vychází z~takového vrcholu, je konečný. Tedy má prázdnou množinu nekonečně častých znaků. Tedy nesplňuje žádnou základní Rabinovu podmínku. Tedy prohrává.
+\end{proof}
+\begin{theorem}
+Evin atraktor množiny proherních vrcholů je proherní pro Adama.
+\end{theorem}
+\begin{proof}
+Takovýto Evin atraktor z~definice (viz definici \ref{def:atraktor}) odpovídá Evině výherní strategii z~dané množiny.
+\end{proof}
+\begin{theorem}
+Výherní region v~podhře $\bar{V}$ vzniklé odebráním Evina atraktoru množiny proherních vrcholů v~plné hře $V$ ze hry $V$ je výherní i v~plné hře $V$.
+\end{theorem}
+\begin{proof}
+Nechť $G = (((V, E), P, p), C)$ je řešená Rabinova hra. Nechť $V_E \subseteq V$ je množina proherních vrcholů hry $G$. Nechť $V_0 = Attr^G_{Eva}(V_l)$. Nechť $s_0$ je odpovídající atraktorová strategie, tj.~strategie, podle které Eva dokáže ve hře $G$ dostat žeton z~vrcholu ve $V_0$ do vrcholu ve $V_E$. Nechť $\bar{G}$ je podhra $G$ indukovaná množinou vrcholů $\bar{V} = V - V_0$.
+\begin{itemize}
+\item
+Nechť $v \in \bar{V}$ je vrchol výherní v~$G$. Nechť $s_v$ je vyhrávající strategie z~vrcholu $v$ ve hře $G$.
+
+Nechť $s_v$-konformní běh ve hře $G$ zavede žeton z~vrcholu $v$ do vrcholu ve $V_0$. Potom Eva dokáže v~následujícím běhu hry $G$ použitím strategie $s_0$ dostat žeton do proherního vrcholu. Tedy $s_v$ není vyhrávající v~$G$ -- spor.
+
+Každý $s_v$-konformní běh ve hře $G$ se tedy vyhýbá vrcholům ve $V_0$. Tedy $s_v$ je vyhrávající strategie z~vrcholu $v$ i v~$\bar{G}$.
+\item
+Nechť $\bar{v} \in \bar{V}$ je vrchol výherní v~$\bar{G}$. Nechť $\bar{s}_{\bar{v}}$ je vyhrávající strategie z~vrcholu $\bar{v}$ ve hře $\bar{G}$.
+
+Nechť $\bar{s}_{\bar{v}}$-konformní běh $\rho$ ve hře $\bar{G}$ zavede žeton z~vrcholu $\bar{v}$ do vrcholu $\bar{v_0}$, který má následníka ve $V_0$.
+
+Nechť $P(\bar{v}_0) = Adam$. Potom $\bar{s}_{\bar{v}}(\bar{v}_0) \in \bar{V}$, protože $\bar{s}_{\bar{v}}$ je Adamova strategie v~$\bar{G}$.
+
+Nechť $P(\bar{v}_0) = Eva$. Potom Eva dokáže dostat žeton z~vrcholu $\bar{v}_0$ do vrcholu ve~$V_0$, tedy $\bar{v}_0 \in Attr^G_{Eva}(V_E)$, tedy $\bar{v}_0 \notin \bar{V}$ -- spor.
+
+Každý $\bar{s}_{\bar{v}}$-konformní běh ve hře $G$ se tedy vyhýbá vrcholům ve $V_0$. Tedy $\bar{s}_{\bar{v}}$ je vyhrávající strategie z~vrcholu $\bar{v}$ i v~$G$.
+\end{itemize}
+Tedy vrchol ve $\bar{V}$ je výherní v~$G$ právě tehdy, když je výherní v~$\bar{G}$.
+\end{proof}

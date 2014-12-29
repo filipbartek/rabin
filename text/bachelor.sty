@@ -1,0 +1,46 @@
+\ProvidesPackage{bachelor}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+
+\usepackage{amsthm} % theoremstyle
+\theoremstyle{definition}
+\newtheorem{definition}{Definice}
+\newcommand{\definiendum}[1]{\textbf{#1}}
+\theoremstyle{plain}
+\newtheorem{theorem}{Věta}
+
+\usepackage{amsfonts} % mathbb
+\newcommand{\nzero}{\mathbb{N}_0}
+
+\usepackage{amsmath} % text
+
+\usepackage{amssymb} % symbols in graphs
+
+\usepackage{multirow} % multirow
+
+\usepackage{makeidx} % index, printindex
+\makeindex
+
+\usepackage{verbatim} % comment
+
+%\newenvironment{informal}{\begin{quotation}}{\end{quotation}}
+\newenvironment{informal}{}{}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\path}[1]{\texttt{#1}}
+
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-3.25ex plus -1ex minus -.2ex}{1.5ex plus .2ex}{\normalsize\bf}}
+
+\usepackage{gnuplottex}
+\usepackage{epstopdf}
+
+\newcommand{\rgsexe}{\path{rgs.exe}}
+\newcommand{\rgslib}{\path{librgs.a}}
+\newcommand{\benchexe}{\path{bench.exe}}
+\newcommand{\bibtex}{BibTeX}
+\newcommand{\metafont}{METAFONT}
+\newcommand{\gnuplotname}{gnuplot}
+
+\usepackage{longtable}

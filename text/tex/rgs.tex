@@ -1,0 +1,116 @@
+\chapter{Uživatelská příručka programu \rgsexe} \label{chap:rgsmanual}
+\section{Rychlý start}
+Zadáním \code{\rgsexe{} game4-2.txt} do příkazové řádky ve složce s~programem \rgsexe{} necháte \rgsexe{} vyřešit hru uloženou v~souboru \code{game4-2.txt} a vypsat řešení na obrazovku.
+\section{Instalace} \label{sec:rgsmanual:instalace}
+Program \rgsexe{} sestavíte zavoláním skriptu \code{build\_all.bat} ve složce s~programem (implicitně \path{../program/src/main}). Předem je nutné nastavit proměnné prostředí úpravou skriptu \path{../program/} \path{src/env\_local.bat}. Doporučuje se nastavit i uživatelské proměnné kompilace úpravou skriptu \path{../program/src/env\_user.bat}.
+
+Ke kompilaci \rgsexe{} potřebujete mít nainstalované knihovny Boost, CxxTL a tree.hh. Ke kompilaci včetně rozhraní pro MATLAB potřebujete mít nainstalovaný program MATLAB.
+\section{Vstupně-výstupní formát}
+\subsection{Vstup}
+Pokud zavoláte \rgsexe{} s~parametrem \path{filename}, kde \path{filename} nezačíná pomlčkou (viz tabulku \ref{tab:volbyrgs}), program se pokusí načíst Rabinovu hru ze souboru \path{filename} a vyřešit ji.
+
+Příklad obsahu vstupního souboru s~Rabinovou hrou (jde o úvodní část ukázkového souboru \path{game4-2.txt}):
+\begin{verbatim}
+4
+2
+0000 0
+0101 1
+1010 0
+1111 1
+0011 1100
+0100 0001
+\end{verbatim}
+Na prvním řádku je počet vrcholů (nazývejme jej $n$, tedy v~případě \path{game4-2.txt} platí $n = 4$). Na druhém řádku je počet základních Rabinových podmínek (nazývejme jej $k$, tedy v~případě \path{game4-2.txt} platí $k = 2$).
+
+Vrcholy jsou indexované od nuly, tedy nabývají indexů z~$\{0, 1, \dotsc, n-1\}$. V~případě \path{game4-2.txt} nabývají indexů od $0$ do $3$.
+
+Na následujících řádcích se objevují podmnožiny množiny vrcholů. Každá taková množina je zadaná posloupností čísel \code{0} a \code{1} délky $n$. \code{1}, resp.~\code{0} na pozici $i$ v~takovéto posloupnosti znamená prezenci, resp.~absenci vrcholu s~indexem $n - 1 - i$ v~dané množině. To znamená, že jsou hodnoty odpovídající vrcholům v~poli seřazené v~(neobvyklém) pořadí od konce.
+
+Na třetím až $n$+třetím řádku jsou vrcholy. Na každém řádku s~vrcholem je množina následníků tohoto vrcholu, mezera a znak určující hráče vlastnícího daný vrchol -- \code{1} znamená, že vrchol na daném řádku patří Adamovi, a \code{0} znamená, že patří Evě.
+
+V~případě \path{game4-2.txt} kódují tyto čtyři řádky Evin vrchol $0$ bez následníka, Adamův vrchol $1$ s~následníky $0$ a $2$, Evin vrchol $2$ s~následníky $1$ a $3$ a Adamův vrchol $3$ s~následníky $0$, $1$, $2$ a $3$.
+
+Na následujících $k$ řádcích jsou základní Rabinovy podmínky. Na každém řádku se základní Rabinovou podmínkou je množina žádoucích vrcholů, mezera a množina nežádoucích vrcholů.
+
+V~případě \path{game4-2.txt} kódují tyto dva řádky dvě základní Rabinovy podmínky. První z~nich obsahuje v~množině žádoucích vrcholů vrcholy $0$ a $1$ a v~množině nežádoucích vrcholů vrcholy $2$ a $3$. Druhá z nich obsahuje v~množině žádoucích vrcholů vrchol $2$ a v~množině nežádoucích vrcholů vrchol $0$.
+
+Na následujících znacích nezáleží, \rgsexe{} je nečte.
+\subsection{Výstup}
+\rgsexe{} vypíše řešení každé řešené hry na obrazovku. Příklad části výpisu po zavolání \code{\rgsexe{} game4-2.txt}:
+\begin{verbatim}
+winning set=1110
+strategy:
+4
+2
+4
+1
+\end{verbatim}
+Formát výpisu na obrazovku se od formátu výpisu do souboru liší pouze přidaným výrazem \code{winning set=} a řádkem \code{strategy:}.
+
+Pokud byl zadán parametr \code{-o suffix}, \rgsexe{} uloží řešení hry zadané parametrem \code{filename} (pro libovolné \code{filename} -- může jich být i více v~jednom běhu) do souboru \code{filenamesuffix}.
+
+Příklad obsahu výstupního souboru s~řešením Rabinovy hry (jde o celý obsah ukázkového souboru \path{game4-2.txt}):
+\begin{verbatim}
+4
+2
+0000 0
+0101 1
+1010 0
+1111 1
+0011 1100
+0100 0001
+1110
+4
+2
+4
+1
+game4-2.txt
+0
+1
+11
+\end{verbatim}
+Počáteční část souboru je prostým výpisem řešené hry ve formátu totožném se vstupním (viz výše). Následuje odřádkování a samotné řešení hry.
+
+Na prvním řádku řešení je množina výherních vrcholů.
+
+V~případě \path{game4-2.txt} jde o vrcholy $1$, $2$ a $3$.
+
+Na následujících $n$ řádcích je Adamova vyhrávající strategie. $i$-tý řádek strategie obsahuje index některého následníka $i$-tého vrcholu pro každý vrchol $i$, který je Adamův a výherní zároveň. Pokud Adam při hraní dané hry pokaždé, když bude na tahu, přejde do vrcholu, který mu takto zadává strategie (pokud mu nějaký zadává), hru jistě vyhraje. Na řádcích odpovídajících Eviným a proherním vrcholům je číslo $n$.
+
+V~případě \path{game4-2.txt} je na prvním řádku strategie číslo $4$, protože vrchol $0$ je proherní (nebo proto, že je Evin), na druhém řádku číslo $2$ jako pobídka k~přechodu z~vrcholu $1$ do vrcholu $2$, na třetím řádku číslo $4$, protože vrchol $2$ je Evin, a na čtvrtém řádku číslo $1$ jako pobídka k~přechodu z~vrcholu $3$ do vrcholu $1$.
+
+Pokud byl zadán parametr \code{-w0} nebo \code{-s0} (viz \ref{tab:volbyrgs}), odpovídající část řešení není vypsána.
+\section{Parametry z~příkazové řádky}
+V~tabulce \ref{tab:volbyrgs} najdete výčet parametrů, které program \rgsexe přijímá prostřednictvím příkazové řádky.
+\begin{table}[htbp] \label{tab:volbyrgs}
+\caption{Parametry \rgsexe{} z~příkazové řádky}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Volba} & \textbf{Popis} \\
+\hline
+\hline
+\code{-h} & Použít Hornův řešič (implicitní volba) \\
+\hline
+\code{-p10} & Použít Pitermanův řešič bez store optimalizace \\
+\hline
+\code{-p11} & Použít Pitermanův řešič se store optimalizací \\
+\hline
+\multirow{2}{*}{\code{-m dir}} & Použít MATLABový řešič umístěný v~\code{dir} \\
+ & \code{dir} musí být absolutní cesta bez mezer \\
+\hline
+\code{-w1} & Vyřešit výherní region (implicitní volba) \\
+\hline
+\code{-w0} & Neřešit výherní region \\
+\hline
+\code{-s1} & Vyřešit vyhrávající strategii (implicitní volba) \\
+\hline
+\code{-s0} & Neřešit vyhrávající strategii \\
+\hline
+\code{-o suffix} & Uložit řešení do souboru \code{filenamesuffix} \\
+\hline
+\code{filename} & Vyřešit hru uloženou v~souboru \code{filename} \\
+\hline
+\end{tabular}
+\end{table}
+
+Parametry zadané později (na příkazové řádce více vpravo) přepisují parametry zadané dříve. Jedinou výjimkou je volba \code{filename}, kterou lze zadat vícekrát -- program potom vyřeší více her v~pořadí, ve~kterém byly zadány na příkazové řádce.

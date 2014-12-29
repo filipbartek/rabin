@@ -1,0 +1,212 @@
+\chapter{Definice} \label{chap:definitions}
+Terminologii čerpám zejména z~\cite{Kretinsky2002,Horn2005,Piterman2006}.
+\section{Rabinova hra}
+\subsection{Hra dvou hráčů}
+\begin{definition} \label{def:twoplayergame}
+\index{hra dvou hráčů@hra (dvou hráčů)}
+\definiendum{Hra dvou hráčů} je uspořádaná trojice $G_2 = (Gr, P, p)$, kde
+\begin{itemize}
+\item $Gr = (V, E)$ je orientovaný graf,
+\item $P$ je uspořádaná dvojice hráčů a
+\item $p: V \rightarrow P$ je rozdělení vrcholů grafu $Gr$ mezi hráče z $P$.
+\end{itemize}
+\end{definition}
+V~dalším textu budu uvažovat pouze hry nad~konečnými grafy, jak jsem již předeslal v~kapitole \ref{chap:intro}. Počet vrcholů grafu rozebírané hry budu značit symbolem $n$\index{n@$n$}, tedy $n = |V|$.
+
+V~dalším textu budu hráče rozebírané hry dvou hráčů nazývat $Adam$\index{Adam@$Adam$} a $Eva$\index{Eva@$Eva$} ve smyslu $P = (Adam, Eva)$.%\footnote{Tato pojmenování hráčů jsou v~souladu s~\cite[s.~2]{Horn2005}.} \footnote{Hráči $Adam$ odpovídá v~mé implementaci RabinGameSolver pravdivostní hodnota pravda (\code{true}), hráči $Eva$ potom hodnota nepravda (\code{false}). V~ilustracích vystupují vrcholy patřící hráči $Adam$ jako čtverce a vrcholy patřící hráči $Eva$ jako kruhy. Toto znázornění je v~souladu s~\cite[s.~2]{Horn2005}.}
+\begin{comment}
+\begin{table}[htbp]
+\caption{Označení hráčů hry dvou hráčů}
+\begin{tabular}{l|lllll}
+Hráč & \cite[s.~2]{Horn2005} & \cite[s.~2]{Piterman2006} & Zdrojový kód & Ilustrace & Výherní podmínka \\
+\hline
+$Adam$ & Adam & Rabin & \code{true} & čtverec & Rabinova \\
+$Eva$ & Eve & Streett & \code{false} & kruh & Streettova \\
+\end{tabular}
+\end{table}
+\end{comment}
+\begin{table}[htbp]
+\caption{Označení hráčů hry dvou hráčů}
+\begin{tabular}{l|lllll}
+Hráč & Výherní podmínka & \cite{Horn2005} & \cite{Piterman2006} & C++ & MATLAB \\
+\hline
+$Adam$ & Rabinova & Adam & Rabin & \code{true} & [protagonist] \\
+$Eva$ & Streettova & Eve & Streett & \code{false} & adv[ersary] \\
+\end{tabular}
+\end{table}
+
+\begin{informal}
+Pro snadnější pochopení významu hry dvou hráčů si představme žeton, který v~každém okamžiku běhu hry leží na některém z~jejích vrcholů. V~průběhu hry se potom tento žeton přesouvá mezi vrcholy podle určitých pravidel. Jeden přesun žetonu odpovídá jednomu tahu. Přesuny (resp. tahy) jsou diskrétní.
+\end{informal}
+\subsection{Rabinova výherní podmínka}
+\begin{definition}
+\index{běh}
+\definiendum{Běh} nad grafem $Gr = (V, E)$ je posloupnost vrcholů $\rho \in V^* \cup V^\omega$, $\rho = (v_0, v_1, \dotsc)$, pro kterou platí:
+\begin{itemize}
+\item $\forall i \in \nzero. (v_i, v_{i+1}) \in E$ a
+\item $\rho \in V^* \Rightarrow \textnormal{$v_{|\rho| - 1}$ nemá následníka v~$Gr$}$.
+\end{itemize}
+\end{definition}
+Tedy běh (jako posloupnost vrcholů) musí procházet graf v~souladu s~přechodovou funkcí danou relací $E$ a smí skončit pouze ve vrcholu, který nemá žádného následníka.
+
+\begin{informal}
+Jinými slovy se žeton v~každém tahu z~libovolného vrcholu $v$ smí přesunout pouze na následníka vrcholu $v$ a pokud takový následník existuje, žeton se v~tom tahu přesunout musí. Posloupnost vrcholů navštívených takovýmto postupem se nazývá během.
+
+Zejména pokud má každý vrchol v~$Gr$ alespoň jednoho následníka, žeton se v~každém běhu nad $Gr$ přesune nekonečněkrát.\footnote{Při řešení Rabinových her se běžně uvažují pouze hry, ve kterých má každý vrchol alespoň jednoho následníka \cite{Horn2005}, mj.~protože vrcholy bez následníků jsou řešitelné triviálně (viz \ref{subsec:horn:implementace:zobecneni}). Já jsem se rozhodl ve své implementaci uvažovat i hry s~vrcholy bez následníků, abych nekladl žádnou netriviální podmínku na vstupní hru a zejména abych umožnil řešení (všech) náhodných her generovaných jednoduchým způsobem popsaným v~sekci \ref{sec:comparison:metodika}.}
+\end{informal}
+\begin{definition}
+\index{runs@$runs$}
+\index{mnozina vsech behu nad grafem@množina všech běhů nad grafem|see{$runs$}}
+\definiendum{$runs(Gr)$} je množina všech běhů nad grafem $Gr$.
+\end{definition}
+\begin{definition}
+\index{vítězná podmínka}
+\definiendum{Vítězná podmínka} pro hru dvou hráčů $G_2 = (Gr, P, p)$ je funkce $win: runs(Gr) \rightarrow P$, která každému běhu $\rho$ nad $Gr$ přiřazuje hráče z~$P$ vyhrávajícího (hru $G_2$ pro) běh $\rho$.
+\end{definition}
+\begin{definition}
+\index{mnozina nekonecne castych znaku@množina nekonečně častých znaků|see{$inf$}}
+\index{inf@$inf$}
+Nechť $\Sigma$ je abeceda. \definiendum{Množinu nekonečně častých znaků} $inf: \Sigma^* \cup \Sigma^\omega \rightarrow 2^\Sigma$ slova $(a_0, a_1, \dotsc)$ definujeme následovně:
+\begin{equation}
+inf((a_0, a_1, \dotsc)) = \{a \in \Sigma | \exists^\omega i \in \nzero: a_i = a\}
+\end{equation}
+\end{definition}
+\begin{informal}
+Množina nekonečně častých znaků běhu je tedy množina právě těch vrcholů, kterými žeton v~tomto běhu projde nekonečněkrát.
+\end{informal}
+
+Zejména platí $\rho \in V^* \Rightarrow inf(\rho) = \emptyset$, tedy množina nekonečně častých znaků konečného běhu je prázdná.
+
+Protože $runs(Gr = (V, E)) \subseteq V^* \cup V^\omega$, lze funkci $inf$ zúžit na $runs(Gr)$. V~dalším textu budu funkci $inf$ bez přejmenovávání zužovat na $runs(Gr)$ pro různé grafy $Gr$ zřejmé z~kontextu.
+\begin{definition}
+\index{vítězná podmínka!Rabinova!základní}
+\definiendum{Základní Rabinova vítězná podmínka} pro hru dvou hráčů $G_2 = ((V, E), (Adam, Eva), p)$ je přesně určená uspořádanou dvojicí $c = (g, r)$, kde
+\begin{itemize}
+\item $g \subseteq V$ je množina vrcholů žádoucích pro hráče $Adam$ a
+\item $r \subseteq V$ je množina vrcholů nežádoucích pro hráče $Adam$:
+\end{itemize}
+
+\begin{equation}
+win_c(\rho) = Adam \Leftrightarrow inf(\rho) \cap g \neq \emptyset \wedge inf(\rho) \cap r = \emptyset
+\end{equation}
+\end{definition}
+\begin{informal}
+Tedy $Adam$ vyhrává podle $c = (g, r)$ běh $\rho$, pokud žeton v~tomto běhu nekonečněkrát stane na některém z~vrcholů z~$g$ a zároveň stane na každém z~vrcholů z~$r$ jen konečněkrát.
+\end{informal}
+\begin{definition} \label{def:rabinwinningcondition}
+\index{vítězná podmínka!Rabinova}
+\index{vítězná podmínka!Rabinova!obecná}
+(Obecná) \definiendum{Rabinova vítězná podmínka} pro hru dvou hráčů $G_2$ je přesně určená množinou $C$ základních Rabinových podmínek pro $G_2$:
+
+\begin{equation}
+win_C(\rho) = Adam \Leftrightarrow \bigvee_{c \in C} win_c(\rho)
+\end{equation}
+\end{definition}
+\begin{informal}
+% Zvážit: footnote by mohlo být vhodnější umístit jinam (je relevantní k samotné definici).
+Tedy $Adam$ vyhrává podle $C = \{(g_0, r_0), (g_1, r_1), \dotsc\}$ běh $\rho$, pokud žeton v~tomto běhu nekonečněkrát stane na některém z~vrcholů z~$g_i$ pro některé $i$ a zároveň stane na každém z~vrcholů z~odpovídající $r_i$ jen konečněkrát.\footnote{Hráč $Adam$ vyhrává Rabinovu hru právě při splnění splnění Rabinovy vítězné podmínky. Duální vítězná podmínka se nazývá Streettova \cite[s.~2]{Piterman2006} -- hráč $Eva$ tedy vyhrává právě při splnění odpovídající Streettovy podmínky. Na základě toho mohou být hráči Rabinovy (nebo Streettovy) hry označeni jako Rabin a Streett \cite[s.~2]{Piterman2006}.}
+\end{informal}
+
+V~dalším textu budu uvažovat pouze konečné Rabinovy vítězné podmínky, jak jsem již předeslal v~kapitole \ref{chap:intro}. Počet základních Rabinových podmínek obecné Rabinovy podmínky rozebírané hry budu značit symbolem $k$\index{k@$k$}, tedy $k = |C|$.
+\begin{definition}
+\index{Rabinova hra}
+\definiendum{Rabinova hra} je uspořádaná dvojice $G = (G_2, C)$, kde
+\begin{itemize}
+\item $G_2$ je hra dvou hráčů a
+\item $C$ je Rabinova vítězná podmínka pro $G_2$.
+\end{itemize}
+\end{definition}
+\section{Řešení Rabinovy hry}
+\begin{definition}
+\index{V hrac@$V_{hrac}$}
+Nechť $G_2 = ((V, E), (tento, onen), p)$ je hra dvou hráčů. Množiny vrcholů patřících jednotlivým hráčům pojmenujeme $V_{tento}$ a $V_{onen}$ podle následujících pravidel:
+\begin{equation}
+V_{tento} = \{v \in V | p(v) = tento\}
+\end{equation}
+\begin{equation}
+V_{onen} = \{v \in V | p(v) = onen\}
+\end{equation}
+\end{definition}
+\begin{informal}
+Tedy $V_{hrac}$ je množina vrcholů patřících hráči $hrac$.
+\end{informal}
+\begin{definition}
+\index{strategie}
+\definiendum{Strategie} hráče $tento$ (resp. $onen$) hry dvou hráčů $G_2 = ((V, E), (tento, onen), p)$ je funkce $s: runs(G_2) \cap \{(v_0, v_1, \dotsc, v_m) \in V^*.V_{tento} \text{ (resp. $V^*.V_{onen}$)}\} \rightarrow V$, pro kterou platí: $s((v_0, v_1, \dotsc, v_m)) \in \{v \in V | (v_c,v) \in E \wedge v_c = v_m\}$.
+\end{definition}
+\begin{informal}
+Tedy strategie danému hráči přesně určuje, na kterého následníka má poslat žeton v~kterémkoliv okamžiku hry, kdy je na tahu (tedy kdy žeton leží na některém z~vrcholů tomuto hráči patřících).
+\end{informal}
+\begin{definition}
+\index{běh!konformní (vzhledem ke strategii)}
+Nechť $s$ je strategie hráče $hrac$. \definiendum{Běh} $\rho = (v_0, v_1, \dotsc)$ je \definiendum{$s$-konformní} právě tehdy, když $\forall i \in \nzero. p(v_i) = hrac \Rightarrow s((v_0, v_1, \dotsc, v_i)) = v_{i+1}$.
+\end{definition}
+\begin{informal}
+Tedy běh je konformní vzhledem ke strategii hráče $hrac$, pokud hráč $hrac$ pokaždé, když je na tahu, pošle žeton na následníka určeného touto strategií (podle dosavadního průběhu hry).
+\end{informal}
+\begin{definition}
+\index{strategie!vyhrávající}
+\definiendum{Strategie} $s$ hráče $hrac$ je \definiendum{vyhrávající} z~výchozího vrcholu $v$ právě tehdy, když hráč $hrac$ vyhrává každý běh, který začíná ve vrcholu $v$ a je $s$-konformní.
+\end{definition}
+\begin{informal}
+Tedy pokud se hráč řídí strategií, která je vyhrávající, jistě zvítězí.
+\end{informal}
+\begin{definition}
+\index{výherní vrchol}
+\definiendum{Vrchol} je \definiendum{výherní} pro hráče $hrac$ právě tehdy, když existuje strategie vyhrávající pro hráče $hrac$ z~tohoto (výchozího) vrcholu.
+\end{definition}
+Každý vrchol Rabinovy hry je výherní pro právě jednoho z~hráčů.\cite[s.~3]{Piterman2006} Tedy vrchol výherní pro hráče $Adam$ je proherním pro hráče $Eva$ a vrchol výherní pro hráče $Eva$ je proherním pro hráče $Adam$.
+%tam ale cituje [12], nepodává důkaz
+\begin{definition}
+\index{výherní region}
+\index{W hrac@$W_{hrac}$|see{výherní region}}
+\definiendum{Výherní region} $W_{hrac} \subseteq V$ hráče $hrac$ je množina všech výherních vrcholů hráče $hrac$.
+\end{definition}
+\begin{informal}
+Tedy pokud žeton začíná hru na vrcholu z~$W_{hrac}$, $hrac$ může jistě zvítězit.
+\end{informal}
+\begin{theorem}
+Nechť $\bar{W}_{hrac} \subseteq W_{hrac}$, tedy pro každý z~vrcholů z~$\bar{W}_{hrac}$ existuje vyhrávající strategie hráče $hrac$. Potom existuje strategie hráče $hrac$, která je vyhrávající pro každý z~vrcholů z~$\bar{W}_{hrac}$.
+\end{theorem}
+\begin{proof}
+Pro $\bar{W}_{hrac} = \emptyset$ platí triviálně (požadovanou vlastnost má každá strategie).
+
+Nechť $\bar{W}_{hrac} \neq \emptyset$. Nechť $v \in \bar{W}_{hrac}$ -- obecný. Nechť $s_v$ je strategie vyhrávající pro hráče $hrac$ a výchozí vrchol $v$. Nechť $v_{fix} \in \bar{W}_{hrac}$ -- libovolný určitý. Nechť $s_{\bar{W}_{hrac}}$ je strategie definovaná následovně:
+\begin{equation}
+s_{\bar{W}_{hrac}}((v_0, v_1, \dotsc, v_m)) =
+\begin{cases}
+s_{v_0}((v_0, v_1, \dotsc, v_m)) & \text{pro }v_0 \in \bar{W}_{hrac} \\
+s_{v_{fix}}((v_0, v_1, \dotsc, v_m)) & \text{pro }v_0 \notin \bar{W}_{hrac} \\
+\end{cases}
+\end{equation}
+Potom $s_{\bar{W}_{hrac}}$ je strategie hráče $hrac$, která je vyhrávající z~každého z~vrcholů z~$\bar{W}_{hrac}$.
+\end{proof}
+Zejména platí pro $\bar{W}_{hrac} = W_{hrac}$, tedy existuje strategie, která je vyhrávající z~každého výherního vrcholu. Říkejme takové strategii dále prostě vyhrávající strategie (bez upřesnění výchozího vrcholu).
+\begin{definition}
+\index{reseni Rabinovy hry@řešení Rabinovy hry}
+(Úplné) \definiendum{řešení Rabinovy hry} $G = ((V, E), (Adam, Eva), p), C)$ je uspořádaná dvojice $(W_{Adam}, s_{Adam})$, kde
+\begin{itemize}
+\item $W_{Adam} \subseteq V$ je $Adam$ův výherní region a
+\item $s_{Adam}$ je $Adam$ova vyhrávající strategie.
+\end{itemize}
+\end{definition}
+(Úplným) vyřešením Rabinovy hry míníme určení $Adam$ova výherního regionu a $Adam$ovy vyhrávající strategie.
+\begin{definition}
+\index{reseni Rabinovy hry@řešení Rabinovy hry!castecne@částečné}
+\definiendum{Částečné řešení Rabinovy hry} je $Adam$ův výherní region.
+\end{definition}
+Částečným vyřešením Rabinovy hry míníme určení $Adam$ova výherního regionu.
+\begin{definition}
+\index{strategie!bezpaměťová}
+\definiendum{Bezpaměťová\footnote{Bezpaměťová strategie bývá někdy zvána poziční \cite[s.~3]{Horn2005}.} strategie} je strategie $s$, pro kterou platí: $\forall (v_0, v_1, \dotsc, v_m), (\bar{v}_0, \bar{v}_1, \dotsc, \bar{v}_l) \in dom(s). v_m = \bar{v}_l \Rightarrow s((v_0, v_1, \dotsc, v_m)) = s((\bar{v}_0, \bar{v}_1, \dotsc, \bar{v}_l))$
+\end{definition}
+\begin{informal}
+Tedy bezpaměťová strategie rozhoduje o následujícím tahu hráče pouze na základě vrcholu, na kterém leží žeton (a nezávisle na vrcholech navštívených v~předchozích tazích).
+\end{informal}
+
+Sjednocením konečných běhů, které končí ve stejném vrcholu, získáme stručnější a praktičtější reprezentaci bezpaměťové strategie pro (libovolného) hráče $hrac$: $s: V_{hrac} \rightarrow V$.
+
+Podle \cite[s.~2]{Piterman2006} existuje pro hráče $Adam$a každé Rabinovy hry bezpaměťová výherní strategie. Protože Rabinovu hru řeším právě pro hráče $Adam$a a protože články \cite{Piterman2006} a \cite{Horn2005} řeší pro $Adam$a v~Rabinových hrách právě (jen) bezpaměťové strategie, budu ve zbytku práce uvažovat jen bezpaměťové strategie (reprezentované podle předchozího odstavce).
+%věta: uvažujeme jen bezpaměťové strategie
+
+Není potřeba, aby strategie určovala následníky proherních vrcholů, protože pokud běh následující z~proherního vrcholu bude konformní vzhledem k~výherní strategii hráče $Eva$ z~tohoto vrcholu (která jistě existuje, protože je ten vrchol proherní), bude tento běh proherní pro $Adam$a, tedy žádný výběr následníka proherního vrcholu nezajistí, že běh bude výherní. Je tedy možné reprezentaci bezpaměťové výherní strategie dále zúžit na $V_{hrac} \cap W_{hrac}$.

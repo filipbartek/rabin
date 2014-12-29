@@ -1,0 +1,103 @@
+\chapter{MATLABový řešič} \label{chap:matlab}
+%Třída \code{MatlabRabinGameSolver} definovaná v~souboru \path{main/MatlabRabinGameSolver.cpp} realizuje rozhraní mezi mým programem a MATLABovou implementací řešiče Rabinových her.
+\section{MATLABová implementace Hornova algoritmu}
+RNDr.~Jana Tůmová implementovala ve skriptovacím jazyce programu MATLAB algoritmus pro řešení Rabinových her představený v~\cite{Horn2005}.\footnote{Jde o tentýž algoritmus, který jsem implementoval jako Hornův řešič -- viz kapitolu \ref{chap:horn}.} Tuto MATLABovou implementaci řešiče jsem použil jako vzor pro vytvoření rozhraní mezi mým C++ programem pro řešení Rabinových her, resp.~jeho abstraktní třídou \code{RabinGame}, a arbitrárním řešičem Rabinových her pracujicím v~MATLABu, který formátuje vstup a výstup stejně a klade na vstup nejvýše tak přísná omezení, jako zmíněná implementace Jany Tůmové.
+\subsection{Omezení vstupu}
+Tůmové MATLABová implementace dokáže řešit právě takové Rabinovy hry, které splňují následující podmínky:
+\begin{enumerate}
+\item Každý následník Adamova vrcholu je Evin vrchol.
+\item Každý následník Evina vrcholu je Adamův vrchol.
+\item Každý Evin vrchol má nejvýše jednoho předchůdce.
+\item Rabinova vítězná podmínka zahrnuje v~množinách žádoucích i nežádoucích vrcholů pouze Adamovy vrcholy.
+\item Počet Eviných vrcholů je $n_{Sigma}$-násobkem počtu Adamových vrcholů, kde $n_{Sigma}$ je nejméně počet následníků Adamova vrcholu s nejvyšším počtem následníků.
+\item \label{item:matlab:vrcholmanaslednika}
+Každý vrchol má nejméně jednoho následníka.
+\end{enumerate}
+S výjimkou šestého jsou tato omezení nucená formátem vstupních dat MATLABové implementace.
+\section{Převod řešené hry do MATLABového formátu}
+\subsection{Formát vstupních dat MATLABového řešiče}
+\label{sec:matlabovyresic:vstupnidata:format}
+Vstupní hra MATLABové implementace je zadaná jako uspořádaná sedmice $(Q\_list, Sigma, Q\_adv, Q\_adv\_list, Cond, delta, delta\_adv)$, kde:
+\begin{itemize}
+\item $Q\_list$ je vektor $(1, 2, \dotsc, n)$ indexů Adamových vrcholů
+\item $Sigma$ je vektor $(1, 2, \dotsc, n_{Sigma})$ indexů akcí, tj.~možných přechodů z~každého Adamova vrcholu
+\item $Q\_adv$ matice rozměrů $|Q\_list \times Sigma| \times 2$ nad indexy, která v~lexikograficky uspořádaných řádcích obsahuje všechny dvojice z~$Q\_list \times Sigma$
+\item $Q\_adv\_list$ je vektor $(1, 2, \dotsc, |Q\_adv|)$ indexů Eviných vrcholů, kde $Q\_adv\_list_i$ odpovídá $i$-tému řádku $Q\_adv$
+\item $Cond$ je Rabinova vítězná podmínka zadaná maticí rozměrů $2 \times k$, kde každý sloupec obsahuje jednu základní Rabinovu podmínku:
+\begin{itemize}
+\item první položka je vzestupně uspořádaný vektor indexů žádoucích Adamových vrcholů
+\item druhá položka je vzestupně uspořádaný vektor indexů nežádoucích Adamových vrcholů
+\end{itemize}
+\item $delta$ je matice rozměrů $|Q\_list| \times |Sigma|$ nad pravdivostními hodnotami, která určuje přechodovou funkci z~Adamových vrcholů následujícím způsobem:
+
+$delta_{va} = 1 \Leftrightarrow$ akce $a$ z~Adamova vrcholu $v$ (tedy přechod do Evina vrcholu $(v, a) \in Q\_adv$) je umožněna
+\item $delta\_adv$ je matice rozměrů $|Q\_adv\_list| \times |Q\_list|$ nad pravdivostními hodnotami, která určuje přechodovou funkci z~Eviných vrcholů následujícím způsobem:
+
+$delta\_adv_{vw} = 1 \Leftrightarrow$ přechod z Evina vrcholu $v \in Q\_adv\_list$ do Adamova vrcholu $w \in Q\_list$ je umožněn
+\end{itemize}
+\subsection{Převod}
+\label{subsec:matlab:vstup:prevod}
+Mějme Rabinovu hru $G = ((Gr = (V = \{v_0, v_1, \dotsc, v_{n-1}\}, E), P = (Adam, Eva), p), C = \{(g_0, r_0), (g_1, r_1), \dotsc, (g_{k-1}, r_{k-1})\})$. Nechť $V_E \subseteq V$ je množina všech vrcholů, které nemají žádného následníka. Převod na instanci MATLABového řešiče lze provést následovně:
+\begin{itemize}
+\item $Q\_list \cong V \cup\{v_n\}$, kde $v_n \notin V$
+\item $Sigma \cong V \cup \{a_n\}$, kde $a_n \notin V$
+\item $Q\_adv$ vyplývá z~$Q\_list$ a $Sigma$, viz \ref{sec:matlabovyresic:vstupnidata:format}
+\item $Q\_adv\_list$ vyplývá z~$Q\_adv$, viz \ref{sec:matlabovyresic:vstupnidata:format}
+\item $Cond$ je matice rozměrů $2 \times k$, kde $i$-tý sloupec (indexovaný od nuly) obsahuje:
+\begin{itemize}
+\item první složka $\cong g_i$ (jako vzestupně uspořádaný vektor indexů odpovídajících vrcholů z~$Q\_list$)
+\item druhá složka $\cong r_i$ (jako vzestupně uspořádaný vektor indexů odpovídajících vrcholů z~$Q\_list$)
+\end{itemize}
+\item $delta \cong$ matice rozměrů $Q\_list \times Sigma$, kde:
+\begin{eqnarray*}
+&delta_{va} = 1 \Leftrightarrow& \\
+&((v = v_n \vee v \in V_E \vee P(v) = Eva) \wedge a = a_n) \vee& \\
+&(P(v) = Adam \wedge (v, a) \in E)&
+\end{eqnarray*}
+\item $delta\_adv \cong$ matice rozměrů $(Q\_list \times Sigma) \times Q\_list$, kde:
+\begin{eqnarray*}
+&delta\_adv_{(v,a)w} = 1 \Leftrightarrow& \\
+&((a \neq a_n \vee v = v_n \vee P(v) = Adam \vee v \in V_E) \wedge a = w) \vee& \\
+&((v \neq v_n \wedge P(v) = Eva \wedge a = a_n) \wedge (v, w) \in E)&
+\end{eqnarray*}
+\end{itemize}
+\begin{informal}
+Tedy každý vrchol $v_i$ původní hry a přidaný vrchol $v_n$ zastoupím skupinou jednoho Adamova vrcholu $Q\_list_i$ (nazývejme $Q\_list_i$ obrazem $v_i$) a $n+1$ Eviných vrcholů (odkazovaných $n+1$ akcemi) nové hry. Nová Rabinova podmínka je zadaná množinami (resp.~vektory) obrazů vrcholů původní Rabinovy podmínky.
+\subsubsection{$delta$}
+Prvních $n$ akcí odpovídá možným následníkům Adamových vrcholů v~původní hře. Maticí $delta$ je akce $Sigma_j$ z~vrcholu $Q\_list_i$ umožněna pouze v~případě, že $v_i$ v~původní hře je Adamův a má následníka $v_j$.
+
+Akce $a_n$ je speciální akce umožněná právě v~obrazech Eviných vrcholů a v~obrazech vrcholů, které nemají v~původní hře žádného následníka (vysvětlení viz níže).
+\subsubsection{$delta\_adv$}
+Evinou odpovědí na akci, kódovanou v~$delta\_adv$, je přechod do Adamova vrcholu. Evina odpověď na akci závisí jak na akci samotné, tak na vrcholu, ze kterého byla akce zavolána (nazývejme jej zdrojovým). Proto je počet Eviných vrcholů v~nové hře roven součinu počtů Adamových vrcholů a akcí.
+\begin{itemize}
+\item Pokud je zdrojový vrchol obrazem Adamova vrcholu, je akce žádostí o přechod do vrcholu a Eva tuto žádost poslechne, protože celá skupina zdrojového vrcholu a jeho akcí (tj.~Eviných vrcholů nové hry) zastupuje (Adamův) vrchol původní hry. Tedy Eva v~odpovědi na akci $Sigma_j$ přejde do vrcholu $Q\_list_j$.
+
+Toto pravidlo je shodou okolností v~pořádku i pro akci $Sigma_n$, která směřuje do vrcholu $Q\_list_n$, který se neobjevuje v~původní hře -- vysvětlení viz níže.
+\item Pokud je zdrojový vrchol $Q\_list_i$ obrazem Evina vrcholu, podle definice $delta$ je jediná umožněná akce $Sigma_n$. Eva si může v~odpovědi na tuto akci vybrat libovolný z~Adamových vrcholů, které jsou obrazy následníků vrcholu $v_i$ v~původní hře.
+\end{itemize}
+\subsubsection{$Q\_list_n$ a $Sigma_n$}
+Pokud $v$ v~původní hře neměl žádného následníka, je z~jeho obrazu v~nové hře umožněna pouze akce $Sigma_n$. Z~Eviných odpovědí na tuto akci je umožněn právě přechod do $Q\_list_n$. Z~vrcholu $Q\_list_n$ je taktéž umožněna pouze akce $Sigma_n$ a na ni pouze odpověď $Q\_list_n$. Tedy jakmile žeton vstoupí do skupiny s~vrcholem $Q\_list_n$, už ji nikdy neopustí a navždy bude cyklit mezi vrcholy $Q\_list_n$ a $(Q\_list_n, Sigma_n)$. Poněvadž $Q\_list_n$ nepatří do množiny žádoucích vrcholů žádné ze základních Rabinových podmínek v~$Cond$, běh, který přes $Q\_list_n$ projde, je zákonitě prohrávající pro Adama. Protože jsou obrazy vrcholů, které v~původní hře nemají žádného následníka, nucené přejít do $Q\_list_n$, jsou v~nové hře proherní, což je v~souladu s~proherností vrcholů bez následníků (viz větu \ref{theorem:vrcholbeznasledniku}). Důležité je, že po této úpravě má každý vrchol v~nové hře nejméně jednoho následníka, čímž je naplněn vstupní požadavek MATLABové implementace č.~\ref{item:matlab:vrcholmanaslednika}.
+\end{informal}
+
+Tento převod jsem implementoval ve třídě \code{MatlabRabinGameSolver} -- pro podrobnosti implementace nahlédněte do souboru \path{main/Matlab\-RabinGameSolver.cpp}.
+\subsection{Nárůst velikosti instance}
+\label{sec:matlab:prevod:narustvelikostiinstance}
+Tento převod zřejmě způsobuje kvadratický nárůst velikosti instance vzhledem k~$n$. Fakt, že nelze převod (bez částečného vyřešení hry) realizovat prostorově asymptoticky efektivněji, dokládá hra, kde $Gr$ je úplný graf a všechny vrcholy patří Adamovi.
+
+Tento převod nebere v~potaz vnitřní strukturu hry a i hry, které splňují vstupní podmínky MATLABové implementace, kvadraticky zvětší. Tím výrazně vzroste i asymptotická časová náročnost výpočtu. Vzhledem k~tomu, že význam MATLABového řešiče je v~rámci této bakalářské práce spíše okrajový, jsem se spokojil s~takto neefektivním převodem. Pro přiblížení rychlosti běhu MATLABové implementace nad hrami pro ni určenými použiji v~odpovídajících tabulkách a grafech pro MATLABový řešič odmocninnou škálu.
+\section{Výstupní data MATLABové implementace}
+\subsection{Formát}
+MATLABová implementace vrací uspořádanou desetici $(Q\_list, Sigma,$ $Q\_adv, Q\_adv\_list, Cond, delta, delta\_adv, W, W\_adv, pi)$, kde:
+\begin{itemize}
+\item počátečních sedm složek kóduje řešenou hru -- viz \ref{sec:matlabovyresic:vstupnidata:format}
+\item $W$ je vektor indexů z~$Q\_list$ právě těch Adamových vrcholů, ze kterých vyhrává Adam
+\item $W\_adv$ je vektor indexů z~$Q\_list$ právě těch Adamových vrcholů, ze kterých vyhrává Eva
+\item $pi$ je vektor indexů akcí ze~$Sigma$, kde $i$-tou složkou $pi$ je index akce (přechodu), kterou má Adam provést ve vrcholu s~indexem $i$ (platí $|pi| = n + 1$)
+\end{itemize}
+$W$, $W\_adv$ a $Q\_list$ můžeme chápat jako množiny. Potom musí ve správném řešení platit $W \cup W\_adv = Q\_list$ a $W \cap W\_adv = \emptyset$.
+
+Také musí platit, že $i$-tá složka $pi$, kde $i \in W$, obsahovat platný index vrcholu. Ostatní složky ovšem mohou obsahovat i neplatné indexy (mimo rozsah vektoru $Sigma$).
+\subsection{Převod}
+Vrcholy z~$W$ převedeme na vrcholy z~$V$ postupem opačným k~postupu uvedenému v~\ref{subsec:matlab:vstup:prevod}. U všech vrcholů kromě $Q\_list_n$ je tento převod možný. Vrchol $Q\_list_n$ se ve výherním regionu správného řešení nikdy neobjeví (argumentaci viz výše).
+
+Analogickým mapováním provedeme převod z~$pi$ na vektor délky $n$ vrcholů z~$V$. Není potřeba brát v~potaz hodnotu $pi_n$, protože $Q\_list_n$ nikdy není výherní. V~$pi$ se ve složce odpovídající výhernímu vrcholu nikdy neobjeví akce $Sigma_n$, protože vede do proherního vrcholu (vysvětlení viz výše).

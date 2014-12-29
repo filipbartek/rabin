@@ -1,0 +1,27 @@
+\chapter{Úvod} \label{chap:intro}
+Od výpočetních systémů zpravidla požadujeme, aby jejich chování splňovalo určité požadavky. Jeden ze způsobů specifikace požadavků na chování systému nabízejí tzv.~Rabinovy podmínky. Tento model postihuje konečněstavové interaktivní systémy, u kterých hodnotíme nekonečné běhy systému (jde o tzv.~liveness podmínky \cite[s.~7]{Heljanko2003}). Rabinova podmínka formalizuje požadavek typu \uv{na alespoň jeden nekonečně častý požadavek systém odpoví pouze konečně často}.\footnote{Duální podmínka Rabinovy podmínky se nazývá Streettova a má (jako přímá realizace tzv.~strong fairness \cite[s.~12]{Heljanko2003}) širší uplatnění.} Zajímá nás, které (resp.~jestli všechny) stavy systému splňují danou Rabinovu podmínku ve smyslu, že každý běh z~takového stavu splňuje danou podmínku.
+
+Rabinovy podmínky nacházejí uplatnění v~řešení podmínek specifikovaných nedeterministickými Büchiho automaty. Nedeterministický Büchiho automat lze pomocí tzv.~Safrovy konstrukce \cite{Kretinsky2002,Safra1988} převést na (deterministický) Rabinův automat. Vyřešení tohoto automatu vede k~vyřešení původního Büchiho automatu.
+
+Rabinova hra je zobecněním Rabinova automatu -- stavy systému jsou v~ní rozdělené mezi dva hráče, z~nichž jeden (Adam, reprezentující (výsledný) program) usiluje o splnění Rabinovy podmínky, zatímco u jeho protivníka (Eva, reprezentující okolní prostředí) počítáme s~tím, že usiluje o porušení podmínky. Řešením Rabinovy hry zjišťujeme, které stavy systému splňují danou Rabinovu podmínku za předpokladu, že hráč Adam napomáhá jejímu splňení, a recept pro Adama k~takovému napomáhání.\footnote{Rabinův automat odpovídá Rabinově hře, kde všechny vrcholy patří hráči Eva.} Jde tedy o syntézu jednoduchého programu v~rámci zadaném řešenou Rabinovou hrou. Recepty pro Adama takto získané jsou bezpaměťové \cite[s.~2]{Piterman2006}, tedy Adamovo rozhodnutí závisí vždy pouze na stavu, ve kterém se systém nachází.
+\section{Cíle}
+\subsection{Implementace řešičů}
+Hlavním cílem této práce je implementace algoritmů pro řešení Rabinových her, tj.~výpočet výherního regionu a vyhrávající strategie pro hráče Adam, představených v~článcích \cite{Piterman2006} a \cite{Horn2005}. Omezím se stejně jako tyto články na Rabinovy hry nad konečnými grafy (viz definici \ref{def:twoplayergame}) a konečnými podmínkami (viz definici \ref{def:rabinwinningcondition}). Při tvorbě implementace se zaměřím na časovou efektivitu.
+\subsection{Implementace uživatelského rozhraní pro řešiče}
+Řešiče zastřeším prakticky použitelným programem pro operační systém Windows.
+\subsection{Implementace rozhraní pro MATLABový řešič}
+Druhotným cílem je vytvoření rozhraní mezi mým zastřešujícím programem pro řešení Rabinových her a MATLABovou implementací řešiče Rabinových her RNDr. Jany Tůmové.
+\subsection{Srovnání řešičů}
+Na závěr experimentálně srovnám časovou efektivitu jednotlivých řešičů.
+\section{Struktura práce}
+V~kapitole \ref{chap:definitions} definuji základní pojmy problematiky řešení Rabinových her.
+
+V~kapitole \ref{chap:implementation} specifikuji použitý programovací jazyk a popisuji datové struktury společné implementacím všech řešičů.
+
+V~kapitole \ref{chap:piterman}, resp.~\ref{chap:horn}, popisuji algoritmus pro řešení Rabinových her představený v~článku \cite{Piterman2006}, resp.~\cite{Horn2005}, a vysvětluji zajímavá specifika jeho implementace.
+
+V~kapitole \ref{chap:matlab} popisuji řešič Rabinových her implementovaný ve skriptovacím jazyce programu MATLAB RNDr.~Janou Tůmovou a komunikační rozhraní mezi tímto řešičem a mým zastřešujícím programem \rgsexe.
+
+V~kapitole \ref{chap:comparison} popisuji použitou metodiku srovnání řešičů a představuji výsledky experimentů.
+
+V~kapitole \ref{chap:conclusions} stručně shrnuji výsledek této práce a navrhuji možnosti dalšího vývoje.

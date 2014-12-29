@@ -1,0 +1,12 @@
+#CLOCKS_PER_SEC=1000
+#1(x)-n_base 2(y)-k_base 3-n-sum 4-n-num 5-n-mean 6-n-deviation 7-k-sum 8-k-num 9-k-mean 10-k-deviation 11-seed-sum 12-seed-num 13-seed-mean 14-seed-deviation 15-PitermanStOptOn-full-sum 16-PitermanStOptOn-full-num 17-PitermanStOptOn-full-mean 18-PitermanStOptOn-full-deviation 19-PitermanStOptOn-justwinningset-sum 20-PitermanStOptOn-justwinningset-num 21-PitermanStOptOn-justwinningset-mean 22-PitermanStOptOn-justwinningset-deviation 23-PitermanStOptOff-full-sum 24-PitermanStOptOff-full-num 25-PitermanStOptOff-full-mean 26-PitermanStOptOff-full-deviation 27-PitermanStOptOff-justwinningset-sum 28-PitermanStOptOff-justwinningset-num 29-PitermanStOptOff-justwinningset-mean 30-PitermanStOptOff-justwinningset-deviation 31-Horn-full-sum 32-Horn-full-num 33-Horn-full-mean 34-Horn-full-deviation 35-Horn-justwinningset-sum 36-Horn-justwinningset-num 37-Horn-justwinningset-mean 38-Horn-justwinningset-deviation
+0 0
+
+8 0 128 16 8 0 0 16 0 0 136 16 8 4.63681 0 16 0 0 0 16 0 0 0 16 0 0 0 16 0 0 0 16 0 0 0 16 0 0
+8 1 128 16 8 0 16 16 1 0 136 16 8 4.63681 2 16 0 0.353553 2 16 0 0.353553 2 16 0 0.353553 5 16 0 0.559017 1 16 0 0.25 0 16 0 0
+8 2 128 16 8 0 32 16 2 0 136 16 8 4.63681 18 16 1 0.790569 16 16 1 0.707107 23 16 1 0.75 17 16 1 0.829156 0 16 0 0 4 16 0 0.5
+8 3 128 16 8 0 48 16 3 0 136 16 8 4.63681 120 16 7 3.10242 117 16 7 2.81736 123 16 7 2.81736 122 16 7 2.62202 3 16 0 0.433013 6 16 0 0.612372
+8 4 128 16 8 0 64 16 4 0 136 16 8 4.63681 914 16 57 20.4359 910 16 56 20.6004 955 16 59 19.4535 951 16 59 19.2435 19 16 1 0.433013 18 16 1 0.353553
+8 5 128 16 8 0 80 16 5 0 136 16 8 4.63681 7900 16 493 177.829 7878 16 492 176.985 8199 16 512 169.799 8164 16 510 168.695 90 16 5 1.58114 93 16 5 1.52069
+8 6 128 16 8 0 96 16 6 0 136 16 8 4.63681 78804 16 4925 1568.46 78359 16 4897 1562.28 80529 16 5033 1493.19 80137 16 5008 1488.16 559 16 34 10.5564 469 16 29 7.45403
+8 7 128 16 8 0 112 16 7 0 136 16 8 4.63681 783650 16 48978 15609 780457 16 48778 15525.1 801749 16 50109 14872.3 798546 16 49909 14814.5 3807 16 237 73.4256 3775 16 235 67.1998

@@ -1,0 +1,10 @@
+\chapter{Závěr} \label{chap:conclusions}
+Úspěšně jsem implementoval algoritmy pro řešení Rabinových her představené v~článcích \cite{Piterman2006} a \cite{Horn2005}. Pro tyto implementace jsem vytvořil uživatelské rozhraní ve formě aplikace \rgsexe{} pro operační systém Windows. Implementoval jsem rozhraní mezi touto aplikací a softwarem MATLAB, prostřednictvím kterého lze řešit Rabinovy hry pomocí řešiče implementovaného ve skriptovacím jazyce softwaru MATLAB. Vytvořil jsem aplikaci \benchexe, která umožňuje dávkové testování časové efektivity řešičů na náhodných hrách.
+
+V~provedených testech se ukázal jako časově výrazně efektivnější Hornův řešič.
+
+Asymptoticky paměťově značně náročná optimalizace Pitermanova algoritmu, která zaručuje výrazné snížení asymptotické časové složitosti, se v~praxi na rychlosti řešení testovacích her neprojevila.
+\paragraph{}
+Zajímavými možnostmi dalšího vývoje řešiče jsou rozšíření na Streettovy hry a paralelizace výpočtů.
+
+Mohlo by být zajímavé porovnat Pitermanův a Hornův řešič s~MATLABovým řešičem speciálně na hrách, které splňují jeho vstupní podmínky, s~efektivní metodou převodu (bez nárůstu velikosti instance, viz \ref{sec:matlab:prevod:narustvelikostiinstance}).

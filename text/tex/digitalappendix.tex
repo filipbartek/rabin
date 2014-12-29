@@ -1,0 +1,57 @@
+\chapter{Digitální příloha}
+\section{Obsah}
+V~tabulce \ref{tab:obsahdigitalniprilohy} najdete výčet adresářů a vybraných souborů digitální přílohy s~jejich popisy.
+\begin{longtable}{l|l}
+\caption{Obsah digitální přílohy} \label{tab:obsahdigitalniprilohy} \\
+\multicolumn{1}{l|}{\textbf{Cesta}} & \multicolumn{1}{l}{\textbf{Význam}} \\ \hline 
+\endfirsthead
+
+\multicolumn{2}{c}%
+{{\tablename\ \thetable{}}} \\
+\multicolumn{1}{l|}{\textbf{Cesta}} &
+\multicolumn{1}{l}{\textbf{Význam}} \\ \hline 
+\endhead
+
+\path{program} & Soubory programů \\
+\path{program/matlab} & Skripty MATLABového řešiče \\
+\path{program/matlab/*.m} & Skripty MATLABového řešiče \\
+\path{program/matlab/b2-2-1.mat} & Soubor s~nesprávně řešenou hrou \\
+\path{program/src} & Soubory programů \\
+\path{program/src/bench} & Soubory programu \benchexe \\
+\path{program/src/bench/*.hpp} & Hlavičkové soubory \\
+\path{program/src/bench/*.cpp} & Zdrojové soubory \\
+\path{program/src/bench/bench.exe} & \emph{Program \benchexe} \\
+\path{program/src/main} & Soubory programu \rgsexe \\
+\path{program/src/main/*.hpp} & Hlavičkové soubory \\
+\path{program/src/main/*.cpp} & Zdrojové soubory \\
+\path{program/src/main/rgs.exe} & \emph{Program \rgsexe} \\
+\path{program/src/env\_local.bat} & Lokální konfigurační skript \\
+\path{program/src/env\_user.bat} & Uživatelský konfigurační skript \\
+\path{program/bench.bat} & \emph{Zástupce \benchexe{} bez MATLABu} \\
+\path{program/bench\_m.bat} & \emph{Zástupce \benchexe{} s~MATLABem} \\
+\path{program/build.bat} & \emph{Hlavní kompilační skript} \\
+\path{program/rgs.bat} & \emph{Zástupce \rgsexe{} bez MATLABu} \\
+\path{program/rgs\_m.bat} & \emph{Zástupce \rgsexe{} s~MATLABem} \\
+\path{text} & Soubory textu práce \\
+\path{text/graph} & Zdrojové soubory grafů \\
+\path{text/graph/*.dat} & Tabulky s~daty z~experimentů \\
+\path{text/graph/*.plt} & Skripty pro generování grafů \\
+\path{text/tex} & Dílčí zdrojové soubory \\
+\path{text/tex/*.tex} & Dílčí zdrojové soubory \\
+\path{text/bachelor.bib} & Zdrojový soubor bibliografie \\
+\path{text/bachelor.pdf} & \emph{Text práce} \\
+\path{text/bachelor.tex} & Hlavní zdrojový soubor textu práce \\
+\path{text/bachelor.sty} & Zdrojový soubor stylu \\
+\path{text/fi-logo.mf} & Logo Fakulty informatiky \\
+\path{text/fit12.clo} & Dílčí soubor stylu fithesis2 \\
+\path{text/fithesis2.cls} & Styl fithesis2 pro sazbu \\
+\path{text/rgs.pdf} & \emph{Příručka programu \rgsexe} \\
+\path{text/rgs.tex} & Zdrojový soubor příručky \rgsexe \\
+\path{readme.txt} & Nápověda k~digitální příloze \\
+\end{longtable}
+\section{Nápověda}
+Nápovědu k~programu \rgsexe{} najdete v~kapitole \ref{chap:rgsmanual}.
+
+Nápovědu k~programu \benchexe{} získáte zavoláním programu \benchexe{} s~parametrem \path{-H} nebo \path{---help}.
+
+Programy \rgsexe{} a \benchexe{} jsou ve verzi dodané v~digitální příloze sestavené bez MATLABového řešiče, aby byly kompatibilní s~více systémy. Pokud chcete používat MATLABový řešič, konzultujte sekci \ref{sec:rgsmanual:instalace}.

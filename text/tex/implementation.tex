@@ -1,0 +1,48 @@
+\chapter{Implementace} \label{chap:implementation}
+\section{Programovací jazyk}
+K~implementaci jsem použil programovací jazyk C++, protože od něj očekávám velkou rychlost výpočtu ve výsledném programu\footnote{Programovací jazyk C++ jsem si vybral na základě doporučení vedoucí práce. Pro ne nezbytně zcela relevantní srovnání \uv{výkonu} programovacích jazyků příznivé pro C++ viz např.~\cite{Cowell-Shah2004}.}, která může být vzhledem k~velké teoretické časové náročnosti použitých algoritmů (viz \ref{subsec:piterman:algoritmus:casovaslozitost} a \ref{subsec:horn:algoritmus:casovaslozitost}) potřebná.
+\section{Realizace množin}
+Množiny, přesněji podmnožiny určitých konečných množin, jsou reprezentovány tzv. bitsety, tj. vektory (poli) pravdivostních příznaků (bitů) s~přidruženými operátory základních množinových operací.
+
+Každý bitset má určitou délku, tedy počet pravdivostních příznaků, které obsahuje. Bitset délky $l$ nativně reprezentuje podmnožinu množiny čísel $\{0, 1, \dotsc, l-1\}$. V~pořadí $m$-tý pravdivostní příznak bitsetu (pro $0 \leq m < l$) určuje přítomnost čísla $m$ v~množině reprezentované tímto bitsetem.
+
+Pro reprezentaci podmnožiny konečné množiny $A$ stačí prvky $A$ očíslovat indexy $\{0, 1, \dotsc, |A|-1\}$. V~mé implementaci takto čísluji vrcholy grafu hry (bitsety reprezentující podmnožiny $V$ mají délky $n$) a základní Rabinovy podmínky hry (bitsety reprezentující podmnožiny $C$ mají délky $k$).
+
+Pro implementaci bitsetů jsem použil třídu \code{boost::dynamic\_} \code{bitset} z~knihovny Dynamic Bitset \cite{Siek2008} z~balíku Boost \cite{Boost}. Vybral jsem ji na základě studie \cite{Pieterse2010}, která \code{boost::dynamic\_bitset} vyhodnotila jako časově nejefektivnější variantu z~několika běžně používaných C++ implementací bitsetu (včetně standardního \code{std::} \code{vector<bool>}).
+
+Vzhledem k~jednoduchosti operací na bitsetech použitých v~mých implementacích řešičů považuji za nepravděpodobné, že jsou třídou \code{boost::dynamic\_bitset} realizovány s~polynomiální časovou složitostí. Vzhledem k~velké asymptotické složitosti implementovaných algoritmů, viz \ref{subsec:piterman:algoritmus:casovaslozitost} a \ref{subsec:horn:algoritmus:casovaslozitost}, jsem se rozhodl od časových náročností operací na bitsetech abstrahovat a považovat je pro účely analýzy časové složitosti řešičů za konstantní.
+\section{Rabinova hra}
+Rabinova hra $G$ je reprezentována objektem třídy \code{RabinGame}, který obsahuje jako atributy:
+\begin{itemize}
+\item hru dvou hráčů ($G_2$) a
+\item Rabinovu vítěznou podmínku ($C$).
+\end{itemize}
+\subsection{Hra (dvou hráčů)}
+Hra dvou hráčů je reprezentována vektorem (délky $n$) vrcholů v~atributu \code{RabinGame::game\_} typu \code{std::vector<Vertex>}.
+\subsubsection{Vrchol (orientovaného grafu hry dvou hráčů)}
+Vrchol $v$ je reprezentován objektem třídy \code{Vertex}, který obsahuje jako atributy:
+\begin{itemize}
+\item množinu následníků daného vrcholu ($\{w \in V | (v, w) \in E\}$) a
+\item (pravdivostní) příznak hráče ($p(v)$).
+\end{itemize}
+\paragraph{Množina následníků}
+Množina následníků vrcholu je (jako podmnožina $V$) reprezentována bitsetem délky $n$ v~atributu \code{Vertex::} \code{successors\_} typu \code{RabinGame::BitsetType}. Implicitně je prázdná.
+\paragraph{Příznak hráče}
+Příznak hráče je reprezentován pravdivostní hodnotou v~atributu \code{Vertex::player\_} typu \code{bool}. Nabývá hodnoty pravda (\code{true}) ve vrcholech hráče $Adam$ a hodnoty nepravda (\code{false}) ve vrcholech hráče $Eva$. Implicitně je nepravdivý.
+\subsection{Rabinova vítězná podmínka}
+Rabinova vítězná podmínka je reprezentována vektorem (délky $k$) základních Rabinových (vítězných) podmínek v~atributu \code{RabinGame::} \code{condition\_} typu \code{std::vector<RabinStreettPair>}.
+\subsubsection{Základní Rabinova podmínka}
+Základní Rabinova podmínka $c$ je reprezentována objektem třídy \code{Rabin\-StreettPair}, který obsahuje jako atributy:
+\begin{itemize}
+\item množinu žádoucích vrcholů ($g$) a
+\item množinu nežádoucích vrcholů ($r$).
+\end{itemize}
+\paragraph{Množina žádoucích vrcholů}
+Množina žádoucích vrcholů je reprezentována bitsetem délky $n$ v~atributu \code{RabinStreettPair::g\_} typu \code{RabinGame::BitsetType}. Implicitně je prázdná.
+\paragraph{Množina nežádoucích vrcholů}
+Množina nežádoucích vrcholů je reprezentována bitsetem délky $n$ v~atributu \code{RabinStreettPair::r\_} typu \code{RabinGame::BitsetType}. Implicitně je prázdná.
+\section{Řešení Rabinovy hry}
+\subsection{Výherní region}
+Výherní region je reprezentován bitsetem délky $n$. Implicitně je prázdný.
+\subsection{Výherní strategie}
+Výherní strategie je reprezentována vektorem (délky $n$) čísel z~$\{0, 1, \dotsc, n\}$. Číslo $j$ na pozici $i$ značí pokyn k~přechodu z~vrcholu $i$ do vrcholu $j$. Ve správně utvořené strategii jsou čísla na pozicích odpovídajících vrcholům z~$V_{Adam} \cap W_{Adam}$ různá od $n$ a čísla na ostatních pozicích rovna $n$. Implicitně jsou všechna čísla rovna $n$ (což odpovídá implicitnímu (prázdnému) výhernímu regionu).

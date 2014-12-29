@@ -1,0 +1,56 @@
+% Using fithesis2 LaTeX style.
+% Required files: fithesis2.cls, fit12.clo, fi-logo.mf
+
+% fithesis2 home page:
+% http://is.muni.cz/th/173173/fi_b/?info
+
+% fithesis2 documentation:
+% http://is.muni.cz/th/173173/fi_b/thesis.pdf?info
+
+% fithesis2 download:
+% http://is.muni.cz/th/173173/fi_b/fithesis2.zip?info
+
+%\documentclass[draft]{fithesis2} % Default: [12pt,oneside,onecolumn,final]
+\documentclass{fithesis2} % Default: [12pt,oneside,onecolumn,final]
+\usepackage{bachelor}
+\input{tex/fithesis2}
+
+% thesis.pdf:
+% The hyperref package should be the very last line before \begin{document}
+\usepackage[plainpages=false,pdfpagelabels,unicode]{hyperref}
+%\usepackage{hyperref}
+\begin{document}
+\FrontMatter
+\ThesisTitlePage
+\begin{ThesisDeclaration}
+\DeclarationText
+\AdvisorName
+\end{ThesisDeclaration}
+\begin{ThesisThanks}
+\input{tex/thanks}
+\end{ThesisThanks}
+\begin{ThesisAbstract}
+\input{tex/abstract}
+\end{ThesisAbstract}
+\begin{ThesisKeyWords}
+\input{tex/keywords}
+\end{ThesisKeyWords}
+\MainMatter
+\tableofcontents
+\listoffigures
+\listoftables
+\input{tex/intro}
+\input{tex/definitions}
+\input{tex/implementation}
+\input{tex/piterman}
+\input{tex/horn}
+\input{tex/matlab}
+\input{tex/comparison}
+\input{tex/conclusions}
+\bibliographystyle{plain}
+\bibliography{bachelor}
+\printindex
+\appendix
+\input{tex/digitalappendix}
+\input{tex/rgs.tex}
+\end{document}

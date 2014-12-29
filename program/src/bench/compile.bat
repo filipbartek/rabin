@@ -1,0 +1,1 @@
+CALL ..\compile.bat %*

@@ -1,0 +1,1 @@
+CALL ..\clean.bat

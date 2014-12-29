@@ -1,0 +1,41 @@
+\chapter{Pitermanův řešič} \label{chap:piterman}
+Pitermanův řešič jsem implementoval podle článku \cite{Piterman2006}.
+\section{Pitermanův algoritmus}
+\subsection{Pomocná definice}
+\begin{definition}
+\label{def:cpred}
+\index{mnozina ridicich predchudcu@množina řídících předchůdců}
+\index{cpred@\code{cpred}|see{množina řídících předchůdců}}
+Nechť $W \subseteq V$. Množina \definiendum{řídících předchůdců}\footnote{V~\cite{Piterman2006} vystupuje množina řídících předchůdců pod jmény \uv{control predecessor} a \code{cpred}.} množiny $W$ je množina všech vrcholů $v$ takových, že:
+\begin{itemize}
+\item $P(v) = Adam \Rightarrow \exists w \in W. (v, w) \in E$
+\item $P(v) = Eva \Rightarrow \forall w \in V. (v, w) \in E \Rightarrow w \in W$
+\end{itemize}
+\end{definition}
+\begin{informal}
+Tedy řídící předchůdci množiny $W$ jsou právě ty vrcholy, ze kterých se žeton v~jednom kroku dostane do množiny $W$, pokud tomu Adam chce.
+\end{informal}
+\subsection{Popis algoritmu}
+Pitermanův algoritmus je rekurzivní prostřednictvím funkce \code{Rabin}. Vstupními argumenty funkce \code{Rabin} jsou množina základních Rabinových podmínek \code{Set}, množina nevyloučených vrcholů \code{seqnr} (v~prvním volání plná) a množina výherních vrcholů \code{right} (v~prvním volání prázdná).
+
+\code{Rabin} vždy počítá pouze na množině nevyloučených vrcholů \code{seqnr}.
+
+V~každém volání si \code{Rabin} vybere základní Rabinovu podmínku $(g, r) \in \code{Set}$ a spočítá rekurzivním voláním \code{Rabin(Set$- (g, r)$, seqnr$- r$, right)} předvýherní vrcholy, tj.~vrcholy, které vyhrávají podle ostatních podmínek v~\code{Set} v~podhře ochuzené o $r$. Poté do množiny výherních vrcholů \code{right} přidá řídící předchůdce takto spočtených předvýherních vrcholů a opakuje volání.
+
+Jakmile toto vnořené volání nevrátí žádné nové vrcholy, algoritmus vrátí množinu výherních vrcholů \code{right} do původního stavu a přidá do ní ty vrcholy z~$g$, které jsou zároveň řídícími předchůdci spočtených předvýherních vrcholů, a opakuje výpočet množiny předvýherních vrcholů. Tak činí opakovaně, dokud se vypočtená množina předvýherních vrcholů neustálí -- takto ustálenou množinu přidá k~výsledku (návratové hodnotě) a opakuje celý výpočet pro další základní Rabinovu podmínku.
+
+Zastřešující funkce \code{main\_Rabin} opakuje volání \code{Rabin} nad plnou množinou základních Rabinových podmínek ($\code{Set} = C$), plnou množinou nevyloučených vrcholů ($\code{seqnr} = V$) a množinou výherních vrcholů (v~prvním volání prázdnou) obohacenou o řídící předchůdce množiny předvýherních vrcholů spočtených předchozím voláním \code{Rabin}, dokud \code{Rabin} vrací různé výsledky. Jakmile se výsledek \code{Rabin} ustálí, je prohlášen za úplné řešení a vrácen funkcí \code{main\_Rabin}.
+
+Pro přesný popis Pitermanova algoritmu pro řešení Rabinových her a důkaz jeho korektnosti nahlédněte do \cite{Piterman2006}.
+\subsection{Řešení strategie}
+Vyhrávající strategie pro hráče Adama je indukována voláními operace \code{cpred} (pro výpočet množiny řídících předchůdců) na množinách předvýherních vrcholů vracených voláními funkce \code{Rabin}.
+\subsection{Časová složitost} \label{subsec:piterman:algoritmus:casovaslozitost}
+Tento algoritmus řeší Rabinovy hry v~čase $O(mn^{2k}k!)$, kde $m = |E|$ \cite[s.~16]{Piterman2006}.
+\subsection{Store optimalizace} \label{subsec:piterman:algoritmus:store}
+V~\cite[kap.~6]{Piterman2006} Piterman představuje optimalizaci výše uvedeného algoritmu. Ta spočívá v~ukládání průběžně vypočtených množin předvýherních vrcholů. Uložené množiny lze za určitých podmínek použít jako výchozí v~dalších výpočtech množin předvýherních vrcholů.
+
+Pitermanův algoritmus se store optimalizací řeší Rabinovy hry v~čase $O(n^{(k+1)}k!)$ a prostoru $O(n^{(k+1)}k!)$.
+\section{Implementace}
+Implementace je realizovaná třídou \code{PitermanRabinGameSolver} definovanou v~souboru \path{main/PitermanRabinGameSolver.cpp}.
+\subsection{Store optimalizace}
+Pro realizaci tzv.~store proměnných, tj.~proměnných, které slouží k~ukládání množin předvýherních vrcholů s~vlastnostmi popsanými v~\cite[kap.~6]{Piterman2006}, jsem použil knihovnu \code{tree.hh} \cite{treehh}.
